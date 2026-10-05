@@ -4,7 +4,7 @@
 
 using namespace std;
 
-// 结构体：姓名 + 学号 + 成绩
+// 结构体：把姓名、学号、成绩打包在一起
 struct Student {
     string name;
     int id;
@@ -12,41 +12,33 @@ struct Student {
 };
 
 int main() {
-    // 让终端正常显示中文
-    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);   // 让终端正常显示中文
 
-    Student stu[5];      // 长度为 5 的学生数组
-    Student *p = stu;    // 指针 p 指向数组第一个学生
-
-    float sum = 0;       // 存总成绩
+    Student stu[5];    // 5 个学生
+    float sum = 0;     // 总成绩
 
     // 输入 5 个学生的信息
     for (int i = 0; i < 5; i++) {
-        p->id = i + 1;   // 学号从 1 到 5
+        stu[i].id = i + 1;   // 学号从 1 排到 5
 
         cout << "请输入第 " << i + 1 << " 位学生的姓名: ";
-        cin >> p->name;
+        cin >> stu[i].name;
 
         cout << "请输入第 " << i + 1 << " 位学生的成绩: ";
-        cin >> p->score;
+        cin >> stu[i].score;
 
-        sum = sum + p->score;
-        p = p + 1;       // 指针往后移一位，指向下一个学生
+        sum = sum + stu[i].score;   // 累加成绩
     }
 
-    float average = sum / 5;   // 平均成绩
-
-    // 指针拨回数组开头，再输出一遍所有信息
-    p = stu;
+    // 再循环一遍，把所有信息打印出来
     cout << "\n----- 5 名学生信息 -----" << endl;
     for (int i = 0; i < 5; i++) {
-        cout << "id=" << p->id
-             << " 姓名=" << p->name
-             << " 成绩=" << p->score << endl;
-        p = p + 1;
+        cout << "学号=" << stu[i].id
+             << " 姓名=" << stu[i].name
+             << " 成绩=" << stu[i].score << endl;
     }
 
-    cout << "平均成绩: " << average << endl;
+    cout << "平均成绩: " << sum / 5 << endl;
 
     system("pause");   // 按任意键再关窗口，不然一闪就没了
     return 0;

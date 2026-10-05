@@ -5,33 +5,30 @@ using namespace std;
 
 const double PI = 3.14159;
 
-// 几何体类：只定一个“标准”，具体怎么算交给子类
-// 带 = 0 的函数叫纯虚函数，意思是自己不实现，子类必须实现
+// 基类：规定"所有几何体都能算体积和表面积"
+// = 0 表示纯虚函数：基类自己不算，留给子类去实现
 class Geometry {
 public:
-    virtual double volume() = 0;       // 求体积
-    virtual double surfaceArea() = 0;  // 求表面积
-    virtual ~Geometry() {}             // 基类的析构函数要写成 virtual，是好习惯
+    virtual double volume() = 0;
+    virtual double surfaceArea() = 0;
 };
 
 // 正方体，继承 Geometry
 class Square : public Geometry {
-private:
-    double a;   // 边长，private 表示外面不能直接改
 public:
+    double a;   // 边长
     Square(double side) { a = side; }
-    double volume() { return a * a * a; }         // 体积 = 边长立方
-    double surfaceArea() { return 6 * a * a; }    // 表面积 = 6 个面
+    double volume() { return a * a * a; }        // 体积 = 边长立方
+    double surfaceArea() { return 6 * a * a; }   // 表面积 = 6 个面
 };
 
 // 球，继承 Geometry
 class Spherome : public Geometry {
-private:
-    double r;   // 半径
 public:
+    double r;   // 半径
     Spherome(double radius) { r = radius; }
-    double volume() { return 4.0 / 3.0 * PI * r * r * r; }  // 球体积公式
-    double surfaceArea() { return 4 * PI * r * r; }         // 球表面积公式
+    double volume() { return 4.0 / 3.0 * PI * r * r * r; }   // 球体积公式
+    double surfaceArea() { return 4 * PI * r * r; }          // 球表面积公式
 };
 
 int main() {
