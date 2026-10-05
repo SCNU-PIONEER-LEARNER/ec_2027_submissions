@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.25)
+project(task5 CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+add_executable(task5 main.cpp)                # 可执行程序
