@@ -1,5 +1,7 @@
 #include "prime_utils.h"
 
+using namespace std;
+
 bool isPrime(int n) {
     if (n <= 1) return false;
     for (int m = 2; m * m <= n; ++m) {
@@ -8,8 +10,8 @@ bool isPrime(int n) {
     return true;
 }
 
-std::vector<int> primesUpTo(int n) {
-    std::vector<int> result;
+vector<int> primesUpTo(int n) {
+    vector<int> result;
     for (int i = 2; i <= n; ++i) {
         if (isPrime(i)) result.push_back(i);
     }
@@ -17,5 +19,5 @@ std::vector<int> primesUpTo(int n) {
 }
 
 int countPrimes(int n) {
-    return static_cast<int>(primesUpTo(n).size());
+    return (int)primesUpTo(n).size();
 }

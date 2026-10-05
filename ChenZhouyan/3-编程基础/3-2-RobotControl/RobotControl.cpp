@@ -1,6 +1,7 @@
 #include "RobotControl.hpp"
 
 using namespace ROBOT;
+using namespace std;
 
 void Robot::decide() {
   if (canForward) {

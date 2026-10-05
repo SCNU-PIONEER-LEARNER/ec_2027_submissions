@@ -7,6 +7,8 @@
 
 #include "prime_utils.h"
 
+using namespace std;
+
 int main() {
 #ifdef _WIN32
     // 让 Windows 终端按 UTF-8 显示中文，避免乱码
@@ -14,16 +16,16 @@ int main() {
 #endif
 
     int n = 0;
-    std::cout << "请输入一个整数 n: ";
-    std::cin >> n;
+    cout << "请输入一个整数 n: ";
+    cin >> n;
 
     auto primes = primesUpTo(n);
-    std::cout << "1 到 " << n << " 之间的质数有:" << std::endl;
+    cout << "1 到 " << n << " 之间的质数有:" << endl;
     for (int p : primes) {
-        std::cout << p << " ";
+        cout << p << " ";
     }
-    std::cout << std::endl;
-    std::cout << "共有 " << countPrimes(n) << " 个质数" << std::endl;
+    cout << endl;
+    cout << "共有 " << countPrimes(n) << " 个质数" << endl;
 
 #ifdef _WIN32
     // 停在结果页，按任意键再关窗口（否则弹出的窗口会一闪而过）
