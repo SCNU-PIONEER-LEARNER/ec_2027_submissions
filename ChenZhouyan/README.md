@@ -19,22 +19,19 @@
 
 ## 构建与运行
 
-环境：GCC（WinLibs UCRT）+ CMake 4.4.x + Ninja，标准 C++20。
+环境：GCC（C:/mingw64）+ CMake + Ninja，VSCode 打开 `3-1task` 文件夹即可用 CMake Tools 一键构建调试（仓库自带 `mingw-toolchain.cmake` 强制使用 g++）。
 
-每个 task 独立构建（以 task1 为例）：
+命令行方式（在 `3-1task` 目录下执行）：
 
 ```bash
-cmake -S 1.my_cpp_task/3-1task/task1 -B 1.my_cpp_task/3-1task/task1/build -G Ninja \
-      -DCMAKE_C_COMPILER=C:/mingw64/bin/gcc.exe \
-      -DCMAKE_CXX_COMPILER=C:/mingw64/bin/g++.exe
-ninja -C 1.my_cpp_task/3-1task/task1/build
-./1.my_cpp_task/3-1task/task1/build/task1.exe
+cmake -S . -B build -G Ninja
+cmake --build build
+./build/task1/task1.exe   # task2 ~ task6 同理，在 build/taskX/ 下
 ```
 
-> 其他 task 把路径里的 `task1` 换成 `task2` ~ `task6` 即可。
 > Task 7 为代码阅读任务，交付物是思维导图 `RobotControl思维导图.svg`，无需编译运行。
 
 ## 说明
 
 - 其余模块（初识 RM、嵌入式舵机、硬件 PCB、拓展）的资料不在本分支提交范围内。
-- 提交分支：`cpp-task`（不合并至 main）。
+- 提交分支：`ChenZhouyan`。
