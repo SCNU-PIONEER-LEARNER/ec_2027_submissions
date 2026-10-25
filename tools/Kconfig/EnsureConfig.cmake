@@ -2,12 +2,12 @@ if(EXISTS "${SOURCE_DIR}/.config")
   return()
 endif()
 
-if(NOT KCONFIG_ALLDEFCONFIG)
-  message(FATAL_ERROR "alldefconfig was not found; cannot create ${SOURCE_DIR}/.config")
+if(NOT PYTHON_EXECUTABLE)
+  message(FATAL_ERROR "Python was not found; cannot create ${SOURCE_DIR}/.config")
 endif()
 
 execute_process(
-  COMMAND "${KCONFIG_ALLDEFCONFIG}" "${KCONFIG_FILE}"
+  COMMAND "${PYTHON_EXECUTABLE}" -m alldefconfig "${KCONFIG_FILE}"
   WORKING_DIRECTORY "${SOURCE_DIR}"
   RESULT_VARIABLE CONFIG_RESULT
   OUTPUT_VARIABLE CONFIG_OUTPUT

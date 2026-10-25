@@ -1,14 +1,23 @@
-find_program(KCONFIG_DEFCONF defconfig)
-find_program(KCONFIG_ALLDEFCONFIG alldefconfig)
-find_program(KCONFIG_MCONF menuconfig)
 find_package(Python REQUIRED COMPONENTS Interpreter)
 
-if(KCONFIG_MCONF)
-    message(STATUS "Found menuconfig: ${KCONFIG_MCONF}")
-else()
+# kconfiglib 以 Python 模块形式提供 menuconfig/defconfig/alldefconfig 等工具。
+# 这里直接通过 ${Python_EXECUTABLE} 运行对应模块，避免 PATH 中残留的旧版可执行
+# 文件与当前 Python 解释器不一致（例如缺失 curses 支持）导致 menuconfig 无法启动。
+set(KCONFIG_MCONF_CMD      "${Python_EXECUTABLE}" -m menuconfig)
+set(KCONFIG_DEFCONF_CMD    "${Python_EXECUTABLE}" -m defconfig)
+set(KCONFIG_ALLDEFCONF_CMD "${Python_EXECUTABLE}" -m alldefconfig)
+
+execute_process(
+    COMMAND "${Python_EXECUTABLE}" -c "import kconfiglib"
+    RESULT_VARIABLE KCONFIGLIB_RESULT
+    OUTPUT_QUIET
+    ERROR_QUIET
+)
+if(NOT KCONFIGLIB_RESULT EQUAL 0)
     message(FATAL_ERROR "Could not find kconfiglib,\
                         please use 'pip install kconfiglib' to install it")
 endif()
+message(STATUS "Found menuconfig via ${Python_EXECUTABLE}")
 
 set(PYTHON_SCRIPT "${CMAKE_SOURCE_DIR}/tools/script/Kconfig2h.py")
 set(ENSURE_CONFIG_SCRIPT "${CMAKE_SOURCE_DIR}/tools/Kconfig/EnsureConfig.cmake")
@@ -28,12 +37,12 @@ add_custom_target(clean_all
 
 add_custom_target(menuconfig
   COMMAND ${CMAKE_COMMAND}
-          -DKCONFIG_ALLDEFCONFIG=${KCONFIG_ALLDEFCONFIG}
+          -DPYTHON_EXECUTABLE="${Python_EXECUTABLE}"
           -DKCONFIG_FILE=${CMAKE_SOURCE_DIR}/Kconfig
           -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
           -P ${ENSURE_CONFIG_SCRIPT}
   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/.config" "${CMAKE_SOURCE_DIR}/.config_editing"
-  COMMAND ${KCONFIG_MCONF} "${CMAKE_SOURCE_DIR}/Kconfig"
+  COMMAND ${KCONFIG_MCONF_CMD} "${CMAKE_SOURCE_DIR}/Kconfig"
   COMMAND ${Python_EXECUTABLE} ${PYTHON_SCRIPT}
   COMMAND ${CMAKE_COMMAND} -B "${CMAKE_BINARY_DIR}" -G Ninja
   COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_SOURCE_DIR}/.config_editing"
@@ -49,7 +58,7 @@ function (apply_config config_name)
     message(STATUS "Applying configuration: ${config_name}")
     execute_process(
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        COMMAND ${KCONFIG_DEFCONF} ${config_name}
+        COMMAND ${KCONFIG_DEFCONF_CMD} ${config_name}
         ERROR_VARIABLE kconfig_error
         RESULT_VARIABLE kconfig_result
     )
@@ -83,7 +92,7 @@ elseif(NOT EXISTS "${CMAKE_BINARY_DIR}/build.ninja"
   message(WARNING "No found build, Using default config")
 
     execute_process(
-        COMMAND ${KCONFIG_ALLDEFCONFIG} ${CMAKE_SOURCE_DIR}/Kconfig
+        COMMAND ${KCONFIG_ALLDEFCONF_CMD} ${CMAKE_SOURCE_DIR}/Kconfig
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
 
