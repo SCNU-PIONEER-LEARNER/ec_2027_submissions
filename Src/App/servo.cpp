@@ -44,6 +44,6 @@ void Servo_Sweep(float from, float to, uint16_t period)
     for (float a = from; (step > 0) ? (a <= to) : (a >= to); a += step)
     {
         Servo_SetAngle(a);
-        HAL_Delay(delay);      // 每步之间的时间，控制速度
+        HAL_Delay(100);      // 每步之间的时间，控制速度
     }
 }
