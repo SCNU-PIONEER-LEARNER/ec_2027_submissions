@@ -1,6 +1,8 @@
 #pragma once
 #include "Singleton.hpp"
+#include "main.h"
 #include "sdkconfig.h"
+#include "servo.hpp"
 
 #if EXTENSION_ET08A
 #include "ET08A.hpp"
@@ -24,4 +26,6 @@ private:
     std::unique_ptr<ServoPwm> lxServo_;
 #endif
 
+private:
+    Servo servo_{&htim3, TIM_CHANNEL_1};
 };
