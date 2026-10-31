@@ -10,12 +10,13 @@
 #include "FreeRTOS.h"
 #include "StmLog.hpp"
 #include <cstdint>
+#include "usercode.h"
 
 #if EXTENSION_ET08A
 #include "main.h"
 #endif
 
-void App::init() {}
+void App::init() { UserCode_Init(); }
 
 void App::task()
 {
