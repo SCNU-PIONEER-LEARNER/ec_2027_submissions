@@ -15,10 +15,14 @@
 #include "main.h"
 #endif
 
-void App::init() {}
+void App::init() { servo_.start(); }
 
 void App::task()
 {
+    static int angle = 0;
+    static int dir = 2;
+    static uint8_t divider = 0;
+
 #if EXTENSION_ET08A
     if (lxServo_ == nullptr || receiver_ == nullptr) {
         return;
@@ -35,6 +39,22 @@ void App::task()
     }
 
 #endif
+
+    if (++divider < 20) { // AppManager 每 1ms 调一次，累计 20ms 更新一次角度
+        return;
+    }
+    divider = 0;
+
+    servo_.setAngle(static_cast<uint16_t>(angle));
+
+    angle += dir;
+    if (angle >= 180) {
+        angle = 180;
+        dir = -2;
+    } else if (angle <= 0) {
+        angle = 0;
+        dir = 2;
+    }
 }
 
 #if EXTENSION_ET08A
