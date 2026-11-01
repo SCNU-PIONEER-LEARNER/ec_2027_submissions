@@ -16,7 +16,11 @@
 #include "main.h"
 #endif
 
-void App::init() { UserCode_Init(); }
+void App::init()
+{
+    UserCode_Init();
+    servo_.init();  /* HAL_TIM_PWM_Start(TIM3_CH1) + 回中位 */
+}
 
 void App::task()
 {
@@ -35,7 +39,30 @@ void App::task()
         }
     }
 
+    return;
 #endif
+
+    /* 无遥控器时的自测：0° ↔ 180° 往返，单程约 2s（20ms 走 13 个 RC 单位） */
+    static uint32_t lastMs = 0;
+    static int16_t rc = ServoPwm::RC_MIN;
+    static int16_t dir = 1;
+
+    const uint32_t now = HAL_GetTick();
+    if (now - lastMs < 20) {
+        return;
+    }
+    lastMs = now;
+
+    rc = static_cast<int16_t>(rc + dir * 13);
+    if (rc >= ServoPwm::RC_MAX) {
+        rc = ServoPwm::RC_MAX;
+        dir = -1;
+    } else if (rc <= ServoPwm::RC_MIN) {
+        rc = ServoPwm::RC_MIN;
+        dir = 1;
+    }
+
+    servo_.setFromRc(rc);
 }
 
 #if EXTENSION_ET08A

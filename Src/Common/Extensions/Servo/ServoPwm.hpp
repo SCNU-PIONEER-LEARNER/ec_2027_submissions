@@ -28,6 +28,8 @@ public:
     void setCenter();//具体函数名自行更改
 
 private:
+    void writePulse(uint16_t _us);
+
     TIM_HandleTypeDef *timer_;
     uint32_t channel_;
     uint16_t currentPulseUs_ = PULSE_CENTER_US;
