@@ -8,6 +8,7 @@
 #include "StmLog.hpp"
 #include "App.hpp"
 #include <memory>
+#include "Servo1/servo1.h"
 
 #if EXTENSION_BUZZER
 #include "Buzzer.hpp"
@@ -47,6 +48,8 @@ void AppManager::initApp()
 
     App::instance().init();
     schedule([]() { App::instance().task(); });
+     Servo_Task_Init();
+     schedule([]() { Servo_Task_Loop(); });
     this->createApp();
 }
 
