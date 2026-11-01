@@ -30,18 +30,22 @@ void ServoPwm::setFromRc(int16_t _value)
 
     const int16_t rc = std::clamp(_value, RC_MIN, RC_MAX);
 
-    /* 把遥控器量程 [RC_MIN, RC_MAX] 线性映射到脉宽 [PULSE_MIN_US, PULSE_MAX_US] */
-    constexpr int32_t kRcSpan    = RC_MAX - RC_MIN;
-    constexpr int32_t kPulseSpan = PULSE_MAX_US - PULSE_MIN_US;
+    /* 遥控器量程 [-671, 670] 先归一化到角度 0~180，再走 setAngle 的同一套映射 */
+    setAngle((rc - RC_MIN) * 180.0f / static_cast<float>(RC_MAX - RC_MIN));
+}
 
-    const int32_t offset = (static_cast<int32_t>(rc) - RC_MIN) * kPulseSpan;
-    const int32_t pulse  = PULSE_MIN_US + (offset + kRcSpan / 2) / kRcSpan;
+void ServoPwm::setAngle(float _deg)
+{
+    /* 限幅，防止超范围把舵机顶死 */
+    _deg = std::clamp(_deg, 0.0f, 180.0f);
 
-    writePulse(static_cast<uint16_t>(std::clamp(pulse, static_cast<int32_t>(PULSE_MIN_US),
-                                               static_cast<int32_t>(PULSE_MAX_US))));
+    /* 角度 → CCR：CCR = 500 + angle/180 * 2000（文档 4-5 节公式） */
+    const uint16_t ccr =
+        static_cast<uint16_t>(PULSE_MIN_US + _deg / 180.0f * (PULSE_MAX_US - PULSE_MIN_US));
+    writePulse(ccr);
 }
 
 void ServoPwm::setCenter()
 {
-    writePulse(PULSE_CENTER_US);
+    setAngle(90.0f);
 }

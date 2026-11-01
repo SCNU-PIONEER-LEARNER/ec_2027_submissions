@@ -42,27 +42,28 @@ void App::task()
     return;
 #endif
 
-    /* 无遥控器时的自测：0° ↔ 180° 往返，单程约 2s（20ms 走 13 个 RC 单位） */
+    /* 无遥控器时的自测：照文档 Servo_Sweep(0, 90, 2) 的节奏，0° ↔ 90° 往返。
+       每 22ms 走 1°，单程约 2s；不能用文档里的 HAL_Delay（会卡死 AppTask） */
     static uint32_t lastMs = 0;
-    static int16_t rc = ServoPwm::RC_MIN;
-    static int16_t dir = 1;
+    static float angle = 90.0f;  /* 与 init() 的中位对齐，避免上电先跳一下 */
+    static float dir = -1.0f;
 
     const uint32_t now = HAL_GetTick();
-    if (now - lastMs < 20) {
+    if (now - lastMs < 22) {
         return;
     }
     lastMs = now;
 
-    rc = static_cast<int16_t>(rc + dir * 13);
-    if (rc >= ServoPwm::RC_MAX) {
-        rc = ServoPwm::RC_MAX;
-        dir = -1;
-    } else if (rc <= ServoPwm::RC_MIN) {
-        rc = ServoPwm::RC_MIN;
-        dir = 1;
+    angle += dir;
+    if (angle >= 90.0f) {
+        angle = 90.0f;
+        dir = -1.0f;
+    } else if (angle <= 0.0f) {
+        angle = 0.0f;
+        dir = 1.0f;
     }
 
-    servo_.setFromRc(rc);
+    servo_.setAngle(angle);
 }
 
 #if EXTENSION_ET08A
