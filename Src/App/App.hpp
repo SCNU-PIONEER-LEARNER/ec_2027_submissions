@@ -22,8 +22,14 @@ public:
 #endif
 
 private:
-    /* F103：TIM3_CH1 硬件 PWM 驱动舵机（CubeMX 里已配 PSC=71 / ARR=19999） */
+    void sweep(uint32_t _now);
+
+    /* F103：TIM3_CH1 硬件 PWM 驱动舵机（CubeMX 里 PSC=71 / ARR=19999） */
     ServoPwm servo_{&htim3, TIM_CHANNEL_1};
+
+    float angle_ = 90.0f;
+    float dir_ = -1.0f;
+    uint32_t lastStepMs_ = 0;
 
 #if EXTENSION_ET08A
     std::unique_ptr<ET08A> receiver_;

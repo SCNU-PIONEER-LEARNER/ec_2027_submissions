@@ -39,6 +39,7 @@ extern "C" {
   extern CRC_HandleTypeDef hcrc;
   extern TIM_HandleTypeDef htim3;
 
+  extern UART_HandleTypeDef huart1;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
