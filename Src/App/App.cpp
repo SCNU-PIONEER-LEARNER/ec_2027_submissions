@@ -15,7 +15,27 @@
 #include "main.h"
 #endif
 
-void App::init() {}
+void App::init() { servo_.init(); /* HAL_TIM_PWM_Start(TIM3_CH1) + 回中位 90° */ }
+
+/* 90° -> 0° -> 90° 往返，每 22ms 走 1°，单程约 2s。
+ * 不能用文档里的 HAL_Delay：App::task() 由 AppManager 每 1ms 调一次，阻塞会卡死整个任务 */
+void App::sweep(uint32_t _now)
+{
+    if (_now - lastStepMs_ < 22) {
+        return;
+    }
+    lastStepMs_ = _now;
+
+    angle_ += dir_;
+    if (angle_ >= 90.0f) {
+        angle_ = 90.0f;
+        dir_ = -1.0f;
+    } else if (angle_ <= 0.0f) {
+        angle_ = 0.0f;
+        dir_ = 1.0f;
+    }
+    servo_.setAngle(angle_);
+}
 
 void App::task()
 {
@@ -34,7 +54,10 @@ void App::task()
         }
     }
 
+    return;
 #endif
+
+    sweep(HAL_GetTick());
 }
 
 #if EXTENSION_ET08A
