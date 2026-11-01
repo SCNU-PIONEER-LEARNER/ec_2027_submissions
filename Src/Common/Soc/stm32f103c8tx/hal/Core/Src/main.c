@@ -48,8 +48,6 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
-CAN_HandleTypeDef hcan1;
-CAN_HandleTypeDef hcan2;
 
 /* USER CODE END PV */
 
