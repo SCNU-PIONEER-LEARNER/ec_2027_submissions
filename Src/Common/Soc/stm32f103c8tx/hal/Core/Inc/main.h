@@ -36,6 +36,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+  extern TIM_HandleTypeDef htim3;
   extern CRC_HandleTypeDef hcrc;
 
 /* USER CODE END ET */
@@ -50,6 +51,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -58,6 +61,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Servo_Pin GPIO_PIN_6
+#define Servo_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
