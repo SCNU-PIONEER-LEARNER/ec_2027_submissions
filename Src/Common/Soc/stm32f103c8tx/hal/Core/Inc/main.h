@@ -36,6 +36,10 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+  extern TIM_HandleTypeDef htim3;
+  extern DMA_HandleTypeDef hdma_tim3_ch1_trig;
+  extern UART_HandleTypeDef huart1;
+  extern DMA_HandleTypeDef hdma_usart1_tx;
   extern CRC_HandleTypeDef hcrc;
 
 /* USER CODE END ET */
@@ -49,6 +53,8 @@ extern "C" {
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */
+
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
