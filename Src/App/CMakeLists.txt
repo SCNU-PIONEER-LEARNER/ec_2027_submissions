@@ -1,6 +1,6 @@
 include(${CMAKE_SOURCE_DIR}/tools/cmake/FindInclude.cmake)
 
-file(GLOB_RECURSE SOURCES CMAKE_CONFIGURE_DEPENDS "*.cpp")
+file(GLOB_RECURSE SOURCES CMAKE_CONFIGURE_DEPENDS "*.cpp" "*.c")
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${SOURCES})
 
