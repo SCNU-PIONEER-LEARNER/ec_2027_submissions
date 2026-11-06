@@ -27,6 +27,7 @@ public:
         Sw_e SA = Sw_e::MID;
         Sw_e SD = Sw_e::MID;
         uint16_t wheel = CH_VALUE_OFFSET;
+        Sw_e SC = Sw_e::MID;
     };
 
     explicit ET08A(UART_HandleTypeDef *_huart);
@@ -39,6 +40,9 @@ public:
     HAL_StatusTypeDef recoverIfOffline();
     void processRxQueue();
 
+    /* 探针校验：核对 huart 实际配置是否为 9E1(9 位字长含校验 + 偶校验 + 1 停止位)，
+     * 防止 CubeMX 改了配置而驱动仍按旧格式解析导致收不到帧。 */
+    bool validateUartConfig() const;
 
     void updateFormatDetection();
 
