@@ -36,6 +36,10 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+  extern DMA_HandleTypeDef hdma_tim3_ch1_trig;
+  extern UART_HandleTypeDef huart1;
+  extern DMA_HandleTypeDef hdma_usart1_tx;
+  extern DMA_HandleTypeDef hdma_usart1_rx;
   extern TIM_HandleTypeDef htim3;
   extern CRC_HandleTypeDef hcrc;
 

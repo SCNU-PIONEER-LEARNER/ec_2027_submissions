@@ -11,33 +11,16 @@
 #include "StmLog.hpp"
 #include <cstdint>
 
-#if EXTENSION_ET08A
 #include "main.h"
-#endif
+#include "servo.h"
 
-void App::init() {}
+void App::init()
+{
+    Servo_Init(&htim3, TIM_CHANNEL_1);
+}
 
 void App::task()
 {
-#if EXTENSION_ET08A
-    if (lxServo_ == nullptr || receiver_ == nullptr) {
-        return;
-    }
-
-    const bool online = receiver_->isOnline();
-
-    if (!online) {
-        lxServo_->setCenter();
-        const HAL_StatusTypeDef recoveryStatus = receiver_->recoverIfOffline();
-        if (recoveryStatus != HAL_OK && recoveryStatus != HAL_BUSY) {
-            LOG::error("App", "ET08A UART DMA recovery failed: %d", recoveryStatus);
-        }
-    }
-
-#endif
+    Servo_Sweep(0, 180, 3600);
+    Servo_Sweep(180, 0, 3600);
 }
-
-#if EXTENSION_ET08A
-bool App::readRcData(ET08A::RcData_s &_data) {}
-
-#endif

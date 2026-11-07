@@ -1,0 +1,8 @@
+# 仅作用于 Src/App 目录：关掉与 C 风格业务代码冲突的样式检查
+Diagnostics:
+  UnusedIncludes: None
+  ClangTidy:
+    Remove:
+      - readability-identifier-naming
+      - readability-math-missing-parentheses
+      - bugprone-incorrect-roundings
