@@ -22,6 +22,14 @@ public:
 private:
     std::unique_ptr<ET08A> receiver_;
     std::unique_ptr<ServoPwm> lxServo_;
+    static constexpr int16_t STICK_CHANNEL   = 2;
+    
+    static constexpr int16_t STICK_SLEW_STEP = 4;   // 4 count/ms ≈ 0.54°/ms ≈ 537°/s
+
+    
+    //int16_t lastStick_ = 0;  
+  
+
 #endif
 
 };

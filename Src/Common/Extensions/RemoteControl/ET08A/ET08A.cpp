@@ -1,17 +1,20 @@
 #include "ET08A.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
+#include <atomic>
 #include <cstring>
 
 namespace {
-constexpr uint32_t OFFLINE_RECOVERY_DELAY_MS = 500;
 
+constexpr uint32_t OFFLINE_RECOVERY_DELAY_MS = 500;
 
 constexpr uint32_t FORMAT_PROBE_WINDOW_MS = 400;
 
 constexpr uint32_t FORMAT_PROBE_MAX_RESTARTS = 4;
+
 }
 
+using namespace std;
 ET08A::ET08A(UART_HandleTypeDef *_huart) : uart_(_huart) {}
 
 ET08A::~ET08A()
@@ -35,10 +38,7 @@ HAL_StatusTypeDef ET08A::start()
         return HAL_ERROR;
     }
 
-    uart_.registerCallback([this](UART_HandleTypeDef *_huart, uint16_t _position) {
-        onRxEvent(_huart, _position);
-    });
-
+    uart_.registerCallback([this](UART_HandleTypeDef *_huart, uint16_t _position) { onRxEvent(_huart, _position); });
 
     uart_.registerRxRestartCallback([this](UART_HandleTypeDef *) { onRxRestart(); });
 
@@ -69,8 +69,7 @@ HAL_StatusTypeDef ET08A::recoverIfOffline()
     const uint32_t lastFrame = lastFrameTick_.load(std::memory_order_relaxed);
     const uint32_t timeout = pdMS_TO_TICKS(OFFLINE_RECOVERY_DELAY_MS);
 
-    if (receivedFrameCount_.load(std::memory_order_relaxed) != 0 &&
-        static_cast<uint32_t>(now - lastFrame) < timeout) {
+    if (receivedFrameCount_.load(std::memory_order_relaxed) != 0 && static_cast<uint32_t>(now - lastFrame) < timeout) {
         return HAL_BUSY;
     }
     if (static_cast<uint32_t>(now - lastRecoveryTick_) < timeout) {
@@ -93,16 +92,13 @@ HAL_StatusTypeDef ET08A::recoverIfOffline()
     return uart_.receiveDma(rxBuffer_.data(), RX_BUFFER_LENGTH);
 }
 
-
 void ET08A::applyFrameFormat(uint8_t _format)
 {
-
     (void)HAL_UART_DMAStop(uart_.huart_);
     __HAL_UART_DISABLE_IT(uart_.huart_, UART_IT_IDLE);
     if (uart_.huart_->hdmarx != nullptr) {
         (void)HAL_DMA_Abort(uart_.huart_->hdmarx);
     }
-
 
     switch (_format) {
     case FORMAT_E81:
@@ -123,7 +119,6 @@ void ET08A::applyFrameFormat(uint8_t _format)
 
     (void)HAL_UART_Init(uart_.huart_);
 
-
     xQueueReset(rxQueue_);
     lastRxPosition_ = 0;
     collectingFrame_ = false;
@@ -132,20 +127,17 @@ void ET08A::applyFrameFormat(uint8_t _format)
     (void)uart_.receiveDma(rxBuffer_.data(), RX_BUFFER_LENGTH);
 }
 
-
 void ET08A::updateFormatDetection()
 {
     if (probeStep_ == FORMAT_PROBE_DONE) {
         return;
     }
 
-
     constexpr uint8_t PROBE_ORDER[FORMAT_PROBE_COUNT] = { FORMAT_E81, FORMAT_O81, FORMAT_N81 };
 
     const uint32_t now = static_cast<uint32_t>(xTaskGetTickCount());
 
     if (!probeActive_) {
-
         if (rxEventCount_.load(std::memory_order_relaxed) == 0U) {
             return;
         }
@@ -173,14 +165,13 @@ void ET08A::updateFormatDetection()
         return;
     }
 
-
     ++probeStep_;
     if (probeStep_ >= FORMAT_PROBE_COUNT) {
         applyFrameFormat(FORMAT_N81);
         probeStep_ = FORMAT_PROBE_DONE;
     }
 }
-
+//取队列
 void ET08A::processRxQueue()
 {
     if (rxQueue_ == nullptr) {
@@ -212,26 +203,13 @@ bool ET08A::isOnline()
     return static_cast<uint32_t>(now - last) <= pdMS_TO_TICKS(100);
 }
 
-uint32_t ET08A::receivedFrames() const
-{
-    return receivedFrameCount_.load(std::memory_order_relaxed);
-}
+uint32_t ET08A::receivedFrames() const { return receivedFrameCount_.load(std::memory_order_relaxed); }
 
-uint32_t ET08A::receivedBytes() const
-{
-    return receivedByteCount_.load(std::memory_order_relaxed);
-}
+uint32_t ET08A::receivedBytes() const { return receivedByteCount_.load(std::memory_order_relaxed); }
 
-uint32_t ET08A::rxEvents() const
-{
-    return rxEventCount_.load(std::memory_order_relaxed);
-}
+uint32_t ET08A::rxEvents() const { return rxEventCount_.load(std::memory_order_relaxed); }
 
-uint32_t ET08A::droppedRxBytes() const
-{
-    return droppedRxBytes_.load(std::memory_order_relaxed);
-}
-
+uint32_t ET08A::droppedRxBytes() const { return droppedRxBytes_.load(std::memory_order_relaxed); }
 
 void ET08A::onRxRestart()
 {
@@ -246,9 +224,9 @@ void ET08A::onRxEvent(UART_HandleTypeDef *_huart, uint16_t _position)
     }
 
     rxEventCount_.fetch_add(1, std::memory_order_relaxed);
-    receivedByteCount_.fetch_add(_position >= lastRxPosition_
-                                     ? static_cast<uint32_t>(_position - lastRxPosition_)
-                                     : static_cast<uint32_t>(RX_BUFFER_LENGTH - lastRxPosition_ + _position),
+    receivedByteCount_.fetch_add(_position >= lastRxPosition_ ?
+                                         static_cast<uint32_t>(_position - lastRxPosition_) :
+                                         static_cast<uint32_t>(RX_BUFFER_LENGTH - lastRxPosition_ + _position),
                                  std::memory_order_relaxed);
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
@@ -283,7 +261,7 @@ void ET08A::enqueueBytes(uint16_t _begin, uint16_t _end, BaseType_t &_higherPrio
         droppedRxBytes_.fetch_add(chunk.length, std::memory_order_relaxed);
     }
 }
-
+//收帧率
 void ET08A::consumeBytes(const RxChunk_s &_chunk)
 {
     for (uint16_t i = 0; i < _chunk.length; ++i) {
@@ -315,10 +293,11 @@ void ET08A::consumeByte(uint8_t _byte)
         data_ = decoded;
         taskEXIT_CRITICAL();
         lastFrameTick_.store(static_cast<uint32_t>(xTaskGetTickCount()), std::memory_order_relaxed);
-        receivedFrameCount_.fetch_add(1, std::memory_order_relaxed);
+        receivedFrameCount_.fetch_add(1,
+
+                                      std::memory_order_relaxed);
         return;
     }
-
 
     uint8_t nextFrameStart = 1;
     while (nextFrameStart < FRAME_LENGTH && frame_[nextFrameStart] != 0x0F) {
@@ -334,7 +313,7 @@ void ET08A::consumeByte(uint8_t _byte)
     framePosition_ = static_cast<uint8_t>(FRAME_LENGTH - nextFrameStart);
     std::memmove(frame_.data(), frame_.data() + nextFrameStart, framePosition_);
 }
-
+//拆包解析，与通道映射
 bool ET08A::decodeFrame(RcData_s &_data) const
 {
     if (frame_[0] != 0x0F) {
@@ -352,7 +331,6 @@ bool ET08A::decodeFrame(RcData_s &_data) const
         static_cast<uint16_t>(((frame_[11] << 3) | (frame_[10] >> 5)) & 0x07FF),
     };
 
-
     _data.ch0 = static_cast<int16_t>(static_cast<int32_t>(channels[0]) - CH_VALUE_OFFSET);
     _data.ch1 = static_cast<int16_t>(static_cast<int32_t>(CH_VALUE_OFFSET) - channels[1]);
     _data.ch2 = static_cast<int16_t>(static_cast<int32_t>(channels[3]) - CH_VALUE_OFFSET);
@@ -361,6 +339,7 @@ bool ET08A::decodeFrame(RcData_s &_data) const
     _data.SD = decodeSwitch(channels[5]);
     _data.wheel = channels[6];
     _data.SA = decodeSwitch(channels[7]);
+ 
     return true;
     //这里是不是要加一些什么
 }

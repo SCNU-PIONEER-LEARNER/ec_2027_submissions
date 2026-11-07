@@ -33,3 +33,10 @@ private:
     uint16_t currentPulseUs_ = PULSE_CENTER_US;
     bool initialized_ = false;
 };
+/*C_MIN = -671 / RC_MAX = 670	遥控器杆量的有效范围，与 ET08A 解码出来的 ±1024-ish 偏移量对齐
+PULSE_MIN_US = 500	舵机最小脉宽（µs）
+PULSE_CENTER_US = 1550	中位脉宽
+PULSE_MAX_US = 2598	最大脉宽
+timer_ / channel_	用哪个定时器、哪个通道（本项目是 TIM3 + TIM_CHANNEL_1）
+currentPulseUs_	上一次设定的脉宽，默认中位
+initialized_	是否已经 init() 过*/

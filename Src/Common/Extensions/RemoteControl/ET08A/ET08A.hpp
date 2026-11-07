@@ -27,6 +27,7 @@ public:
         Sw_e SA = Sw_e::MID;
         Sw_e SD = Sw_e::MID;
         uint16_t wheel = CH_VALUE_OFFSET;
+        
     };
 
     explicit ET08A(UART_HandleTypeDef *_huart);
@@ -48,7 +49,7 @@ public:
     uint32_t receivedBytes() const;
     uint32_t rxEvents() const;
     uint32_t droppedRxBytes() const;
-
+  
 private:
     struct RxChunk_s {
         uint16_t length = 0;
