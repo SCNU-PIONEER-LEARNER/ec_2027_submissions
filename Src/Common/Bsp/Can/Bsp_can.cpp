@@ -10,12 +10,20 @@ extern canHandle HCAN3;
 
 HAL_StatusTypeDef Can::init()
 {
+    /* 原来是 result = initSelf(...) 连写三行，后一行的返回值会把前一行的覆盖掉，
+     * CAN1 初始化失败会被静默吞掉。这里改成任一失败就置位，不丢失错误。 */
     HAL_StatusTypeDef result = HAL_OK;
-    result = initSelf(&HCAN1, RX_FIFO0);
-    result = initSelf(&HCAN2, RX_FIFO1);
+    if (initSelf(&HCAN1, RX_FIFO0) != HAL_OK) {
+        result = HAL_ERROR;
+    }
+    if (initSelf(&HCAN2, RX_FIFO1) != HAL_OK) {
+        result = HAL_ERROR;
+    }
 #ifdef HCAN3
     extern canHandle HCAN3;
-    result = initSelf(&HCAN3, RX_FIFO0);
+    if (initSelf(&HCAN3, RX_FIFO0) != HAL_OK) {
+        result = HAL_ERROR;
+    }
 #endif
     return result;
 }
@@ -72,8 +80,32 @@ HAL_StatusTypeDef canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
 {
     HAL_StatusTypeDef result = HAL_OK;
     CAN_FilterTypeDef canFilter{};
-    // TODO:
+
+    /* ★ 本题填写开始（原骨架为 // TODO:）
+     * 全零结构体 = FilterActivation DISABLE = 一组滤波器都没使能
+     * → STM32F4 收到帧后无处可放，直接丢弃，一帧都进不来。
+     *   现象：CAN 状态正常、发送能成功，但接收回调永远不被调用。 */
+    canFilter.FilterActivation = ENABLE;                 // 使能这组滤波器
+    canFilter.FilterMode       = CAN_FILTERMODE_IDMASK;  // 掩码模式（逐位比对）
+    canFilter.FilterScale      = CAN_FILTERSCALE_32BIT;  // 32 位宽：一个组同时放 ID 和掩码
+    canFilter.FilterIdHigh     = 0x0000;                 // 期望 ID = 0
+    canFilter.FilterIdLow      = 0x0000;
+    canFilter.FilterMaskIdHigh = 0x0000;                 // 掩码全 0 = 不关心任何位 = 全通
+    canFilter.FilterMaskIdLow  = 0x0000;
+
+    /* 帧进了哪个 FIFO，必须和上面开的中断一致（RX_FIFO0=0 / RX_FIFO1=1） */
+    canFilter.FilterFIFOAssignment = (_fifo == 0) ? CAN_RX_FIFO0 : CAN_RX_FIFO1;
+
+    /* F407 共 28 组滤波器，CAN1 用 0~13，CAN2 用 14~27。
+     * 注意 HAL 里这个编号是"绝对编号"，CAN2 传 0 会去改 CAN1 的 0 号组。 */
+    canFilter.FilterBank           = (_can == &HCAN1) ? 0 : 14;
+    canFilter.SlaveStartFilterBank = 14;
+    /* ★ 本题填写结束 */
+
     result = HAL_CAN_ConfigFilter(_can, &canFilter);
+    if (result != HAL_OK) {
+        return result;
+    }
     if (_fifo == 0) {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO0_MSG_PENDING);
     } else if (_fifo == 1) {
