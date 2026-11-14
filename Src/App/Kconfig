@@ -1,0 +1,11 @@
+menu "app config"
+
+config APP_USE_CAN
+bool "simple CAN"
+default n
+
+config APP_USE_RC
+bool "simple RC"
+default n
+
+endmenu

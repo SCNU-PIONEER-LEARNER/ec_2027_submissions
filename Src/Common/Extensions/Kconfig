@@ -1,0 +1,12 @@
+menu "extension config"
+
+config EXTENSION_RC
+    bool "remote control"
+    default y
+
+config EXTENSION_ET08A
+    string "ET08A"
+    depends on EXTENSION_RC
+    default n
+
+endmenu

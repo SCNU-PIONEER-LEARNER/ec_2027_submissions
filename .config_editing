@@ -1,0 +1,68 @@
+CONFIG_TARGET_MASTER=y
+# CONFIG_TARGET_SLAVE is not set
+
+#
+# Soc config
+#
+# CONFIG_TARGET_STM32F103C8TX is not set
+CONFIG_TARGET_STM32F407IGHX=y
+
+#
+# STM32F407 Soc config
+#
+CONFIG_HAL_INCLUDEaa="\"Src/Common/Soc/stm32f407ighx/hal/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h\""
+# CONFIG_SOC_USE_CUSTOM is not set
+# end of Soc config
+
+#
+# app config
+#
+CONFIG_APP_USE_CAN=y
+# CONFIG_APP_USE_RC is not set
+# end of app config
+
+#
+# Bsp config
+#
+# CONFIG_BSP_USE_CAN is not set
+CONFIG_BSP_USE_DMA=y
+CONFIG_BSP_USE_PWM=y
+CONFIG_BSP_USE_UART=y
+CONFIG_BSP_USE_TIM=y
+CONFIG_BSP_USE_USB=y
+# end of Bsp config
+
+#
+# extension config
+#
+# CONFIG_EXTENSION_RC is not set
+# CONFIG_EXTENSION_MOTOR is not set
+# end of extension config
+
+#
+# utils config
+#
+CONFIG_USE_HARDFAULT=y
+CONFIG_USE_STM_LOG=y
+
+#
+# Log config
+#
+CONFIG_LOG_MAX_RAW_LENGTH=128
+CONFIG_LOG_MAX_LOG_LENGTH=128
+CONFIG_LOG_SHOW_COLOR=y
+# CONFIG_LOG_SHOW_TIMESTAMP is not set
+# CONFIG_LOG_SHOW_LOCATION is not set
+CONFIG_LOG_OUTPUT_RTT=y
+# CONFIG_LOG_OUTPUT_UART is not set
+# end of Log config
+
+CONFIG_USE_SINGLETON=y
+# end of utils config
+
+#
+# Kernel hacking
+#
+CONFIG_RTOS_DEBUG=y
+# CONFIG_USE_VSCODE_XRTOS is not set
+# end of Kernel hacking
