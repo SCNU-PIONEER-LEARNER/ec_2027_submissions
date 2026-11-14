@@ -12,10 +12,11 @@
 extern CAN_HandleTypeDef HCAN1;
 extern CAN_HandleTypeDef HCAN2;
 
-MotorData_s test;
 GM6020::GM6020(InitConfig_s _config)
         : cmdType(_config.cmdType), txBaseId(_config.txBaseId), rxBaseId(_config.rxBaseId), offsetId(_config.offsetId)
 {
+     CAN::instance().setRxStdId(static_cast<int32_t>(rxBaseId +offsetId));
+     //instance()是单例，
     cmdClear();
 }
 
@@ -28,9 +29,9 @@ MotorData_s GM6020::getMotorData()
 {
     memcpy(rxBuf, CAN::instance().getCAN1RxData(), 8);
 
-    rawData.rawAng = ((rxBuf[1] << 8) | rxBuf[0]);
-    rawData.rawVel = static_cast<int16_t>((rxBuf[3] << 8) | rxBuf[2]);
-    rawData.rawCurr = static_cast<int16_t>((rxBuf[5] << 8) | rxBuf[4]);
+    rawData.rawAng = ((rxBuf[0] << 8) | rxBuf[1]); //接收缓冲
+    rawData.rawVel = static_cast<int16_t>((rxBuf[2] << 8) | rxBuf[3]);
+    rawData.rawCurr = static_cast<int16_t>((rxBuf[4] << 8) | rxBuf[5]);
     rawData.rawTemp = rxBuf[6];
 
     motorData.Ang = static_cast<float>(rawData.rawAng) / (ANG_MEASURE_MAX - ANG_MEASURE_MIN) * 2.f * M_PI;
@@ -39,27 +40,25 @@ MotorData_s GM6020::getMotorData()
     motorData.torq = motorData.current * KN;
     motorData.temperture = rawData.rawTemp;
 
-    test = motorData;
-
     return motorData;
 }
 
-void GM6020::cmd(float _value)
+void GM6020::cmd(float _value)//cmd() 一次 = 发一帧 CAN
 {
     if (cmdType == CmdType_e::SET_CURR) {
-        cmdElec.elec = _value;
-        cmdElec.rawCmd = cmdElec.elec;
+        cmdElec.elec = _value;//存值，记下想要的电流
+        cmdElec.rawCmd = cmdElec.elec* (CURR_MEASURE_MAX / CURR_MAX);
     }
     if (cmdType == CmdType_e::SET_TORQ) {
         cmdTorq.torq = _value;
         cmdTorq.elec = cmdTorq.torq / KN;
-        cmdTorq.rawCmd = cmdTorq.elec;
+        cmdTorq.rawCmd = cmdTorq.elec*(ANG_MEASURE_MAX / ANG_MEASURE_MIN);
     }
     if (cmdType == CmdType_e::SET_VOLT) {
         cmdVolt.volt = _value;
-        cmdVolt.rawCmd = cmdVolt.volt;
+        cmdVolt.rawCmd = cmdVolt.volt* (VOLT_MEASURE_MAX / VOLT_MAX);// V → 格，≈992 格/V
     }
-    sendCmdData();
+    sendCmdData();//拼字节，发Can
 }
 
 void GM6020::disable()
@@ -95,8 +94,8 @@ void GM6020::sendCmdData()
     }
     if (cmdType == CmdType_e::OFF) {
         txBuf[2 * (offsetId - 1) + 1] = 0 & 0xFF;
-        txBuf[2 * (offsetId - 1)] = (0 >> 8) & 0xFF;
+        txBuf[2 * (offsetId - 1)] = (0 >> 8) & 0xFF;//把一个 16 位大数劈两半装进两个字节，CAN 一帧只有 8 字节，装不下一个 16 位数
     }
 
-    CAN::instance().transmitData(&HCAN2, txBaseId, txBuf, 8);
+    CAN::instance().transmitData(&hcan1, txBaseId, txBuf, 8);//发给"1 号到 4 号电机"的广播 ID
 }

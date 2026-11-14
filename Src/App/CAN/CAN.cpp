@@ -10,7 +10,6 @@
 extern CAN_HandleTypeDef HCAN1;
 extern CAN_HandleTypeDef HCAN2;
 
-uint8_t rxdatatest =0;
 CAN::CAN() : rxStdId(0x0000), rxCnt(0)
 {
     memset(rxData, 0, sizeof(rxData));
@@ -26,10 +25,10 @@ HAL_StatusTypeDef CAN::canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
     canFilter.FilterMode = CAN_FILTERMODE_IDMASK;  //使用掩码
     canFilter.FilterScale = CAN_FILTERSCALE_32BIT; //过滤器位宽32位
     canFilter.FilterFIFOAssignment = _fifo;        //分配FIFO
-    canFilter.FilterIdHigh = 0x0003;               //期望通过的ID高16位
-    canFilter.FilterIdLow = 0x0003;                //期望通过的ID低16位
-    canFilter.FilterMaskIdHigh = 0x0003;           //掩码高16位
-    canFilter.FilterMaskIdLow = 0x0003;            //掩码低16位
+    canFilter.FilterIdHigh = 0x0000;               //期望通过的ID高16位
+    canFilter.FilterIdLow = 0x0000;                //期望通过的ID低16位
+    canFilter.FilterMaskIdHigh = 0x0000;           //掩码高16位
+    canFilter.FilterMaskIdLow = 0x0000;            //掩码低16位
 
     if (_can == &HCAN1) {
         canFilter.FilterBank = 0; //分配过滤器组0到14
@@ -43,7 +42,7 @@ HAL_StatusTypeDef CAN::canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
     } else if (_fifo == 1) {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO1_MSG_PENDING);
     }
-
+    return result;
 }
 
 HAL_StatusTypeDef CAN::init()
@@ -70,7 +69,6 @@ void CAN::callbackFromISR(CAN_HandleTypeDef *_hcan, uint32_t _rxFifo)
 
     if (_hcan == &HCAN1 && rxHeader.StdId == rxStdId) {
         memcpy(rxBuffer0, rxData, sizeof(rxData));
-        rxdatatest = rxData[0];
     } else if (_hcan == &HCAN2 && rxHeader.StdId == rxStdId) {
         memcpy(rxBuffer1, rxData, sizeof(rxData));
     }

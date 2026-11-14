@@ -7,6 +7,6 @@ config EXTENSION_RC
 config EXTENSION_ET08A
     string "ET08A"
     depends on EXTENSION_RC
-    default n
+    default y
 
 endmenu
