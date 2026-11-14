@@ -10,6 +10,7 @@ void DJIMotor::init(canHandle *_hcan, uint8_t _id)
     regInfo_.hcan = _hcan;
     regInfo_.id = _id;
     // TODO:
+    regInfo_.txSlot = 2;    // 电机 id=2，占 0x1FE 帧的第 2、3 字节（通式 (id-1)*2）
 }
 
 bool DJIMotor::cmdCurrent(float _current)
@@ -21,6 +22,12 @@ bool DJIMotor::cmdCurrent(float _current)
     uint8_t tx[8] = { 0 };
     uint16_t code = currentToCode(_current);
     // TODO:
+    tx[regInfo_.txSlot]     = static_cast<uint8_t>((code >> 8) & 0xFF);
+    tx[regInfo_.txSlot + 1] = static_cast<uint8_t>(code & 0xFF);
+    const HAL_StatusTypeDef result =
+        Can::instance().transmitData(regInfo_.hcan, 0x1FE, tx, 8);
+    return result == HAL_OK;
+
     return false;
 }
 
