@@ -12,7 +12,6 @@
 extern CAN_HandleTypeDef HCAN1;
 extern CAN_HandleTypeDef HCAN2;
 
-MotorData_s test;
 GM6020::GM6020(InitConfig_s _config)
         : cmdType(_config.cmdType), txBaseId(_config.txBaseId), rxBaseId(_config.rxBaseId), offsetId(_config.offsetId)
 {
@@ -38,8 +37,6 @@ MotorData_s GM6020::getMotorData()
     motorData.current = static_cast<float>(rawData.rawCurr) / CURR_MEASURE_MAX * CURR_MAX;
     motorData.torq = motorData.current * KN;
     motorData.temperture = rawData.rawTemp;
-
-    test = motorData;
 
     return motorData;
 }

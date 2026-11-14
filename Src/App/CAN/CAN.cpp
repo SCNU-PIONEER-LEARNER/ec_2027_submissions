@@ -10,7 +10,6 @@
 extern CAN_HandleTypeDef HCAN1;
 extern CAN_HandleTypeDef HCAN2;
 
-uint8_t rxdatatest =0;
 CAN::CAN() : rxStdId(0x0000), rxCnt(0)
 {
     memset(rxData, 0, sizeof(rxData));
@@ -70,7 +69,6 @@ void CAN::callbackFromISR(CAN_HandleTypeDef *_hcan, uint32_t _rxFifo)
 
     if (_hcan == &HCAN1 && rxHeader.StdId == rxStdId) {
         memcpy(rxBuffer0, rxData, sizeof(rxData));
-        rxdatatest = rxData[0];
     } else if (_hcan == &HCAN2 && rxHeader.StdId == rxStdId) {
         memcpy(rxBuffer1, rxData, sizeof(rxData));
     }
