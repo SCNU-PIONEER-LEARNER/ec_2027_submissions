@@ -73,6 +73,16 @@ HAL_StatusTypeDef canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
     HAL_StatusTypeDef result = HAL_OK;
     CAN_FilterTypeDef canFilter{};
     // TODO:
+    canFilter.FilterActivation     = CAN_FILTER_ENABLE;
+    canFilter.FilterBank           = (_can == &HCAN1) ? 0 : 14;
+    canFilter.SlaveStartFilterBank = 14;
+    canFilter.FilterMode           = CAN_FILTERMODE_IDMASK;
+    canFilter.FilterScale          = CAN_FILTERSCALE_32BIT;
+    canFilter.FilterFIFOAssignment = _fifo;      // ← 跟着参数走，天然与中断一致
+    canFilter.FilterIdHigh = canFilter.FilterIdLow = 0;
+    canFilter.FilterMaskIdHigh = canFilter.FilterMaskIdLow = 0;
+
+
     result = HAL_CAN_ConfigFilter(_can, &canFilter);
     if (_fifo == 0) {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO0_MSG_PENDING);
@@ -135,7 +145,7 @@ void Can::callbackFromISR(canHandle *_hcan, uint32_t _rxFifo)
         }
     }
 }
-
+  
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *_hcan) { Can::instance().callbackFromISR(_hcan, RX_FIFO0); }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *_hcan) { Can::instance().callbackFromISR(_hcan, RX_FIFO1); }

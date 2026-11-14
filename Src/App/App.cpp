@@ -35,7 +35,8 @@ void App::task()
     }
     angle_ = imuInstance->getData();
     // TODO:
-    const float targetCurrent = std::clamp(0.0f, -MAX_CURRENT, MAX_CURRENT);
+    float txCurrent= angle_.pitch*0.06f;
+    const float targetCurrent = std::clamp(txCurrent, -MAX_CURRENT, MAX_CURRENT);
     motorCurrent_ = std::clamp(targetCurrent, motorCurrent_ - MAX_CURRENT_STEP,
                                motorCurrent_ + MAX_CURRENT_STEP);
 
