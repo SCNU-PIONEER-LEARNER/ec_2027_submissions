@@ -1,6 +1,5 @@
 #include "Bsp_can.hpp"
 #include "Soc.hpp"
-#include "stm32f4xx_hal_can.h"
 
 extern canHandle HCAN1;
 extern canHandle HCAN2;
@@ -72,28 +71,17 @@ HAL_StatusTypeDef canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
 {
     HAL_StatusTypeDef result = HAL_OK;
     CAN_FilterTypeDef canFilter{};
-    // TODO: /* CAN1 用 bank0，CAN2 用 bank14（F407 双 CAN 共用 28 个过滤器组） */
+    // TODO:跳转定义
     canFilter.FilterBank = (_can->Instance == CAN1) ? 0U : 14U;
-
-    /* 掩码模式 + 32 位，一个 bank 一个过滤器 */
     canFilter.FilterMode = CAN_FILTERMODE_IDMASK;
     canFilter.FilterScale = CAN_FILTERSCALE_32BIT;
-
-    /* ID 和掩码全 0 = 全通：任何标准帧都接收 */
-    canFilter.FilterIdHigh = 0U;
-    canFilter.FilterIdLow = 0U;
-    canFilter.FilterMaskIdHigh = 0U;
-    canFilter.FilterMaskIdLow = 0U;
-
-    /* 按调用者传进来的 FIFO 分配：CAN1→FIFO0，CAN2→FIFO1 */
-    canFilter.FilterFIFOAssignment = (_fifo == 0U) ? CAN_FILTER_FIFO0 : CAN_FILTER_FIFO1;
-
-    /* 关键：不使能这个 bank，前面配了也收不到 */
+    canFilter.FilterIdHigh = 0x0000U;
+    canFilter.FilterIdLow = 0x0000U;
+    canFilter.FilterMaskIdHigh = 0x0000U;
+    canFilter.FilterMaskIdLow = 0x0000U;
+    canFilter.FilterFIFOAssignment = _fifo;
     canFilter.FilterActivation = ENABLE;
-
-    /* F407 双 CAN：CAN2 的起始 bank 是 14 */
     canFilter.SlaveStartFilterBank = 14U;
-    
     result = HAL_CAN_ConfigFilter(_can, &canFilter);
     if (_fifo == 0) {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO0_MSG_PENDING);

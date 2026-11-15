@@ -20,9 +20,11 @@ public:
 
 private:
     // TODO:
-    static constexpr uint32_t TX_STDID_1_4 = 0x1FE;
+    static constexpr uint32_t TX_STDID_1_4 = 0x1FE;   // 512
+   // static constexpr uint32_t TX_STDID_1_4 = 0;
     // TODO:
-    static constexpr uint32_t TX_STDID_5_7 = 0x2FE;
+    static constexpr uint32_t TX_STDID_5_7 = 0x2FE;   // 511
+    // static constexpr uint32_t TX_STDID_5_7 = 0;
 
     uint16_t currentToCode(float _current);
     uint32_t txStdID();
