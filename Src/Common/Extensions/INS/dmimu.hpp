@@ -42,8 +42,8 @@ private:
 
     canHandle *hcan_ = nullptr;
     Data_s data_{};
-    uint8_t rawEuler_[6]{};
-    uint8_t rxFrame_[8]{};
+    uint8_t rawEuler_[6]{};   //纯字节缓冲区
+    uint8_t rxFrame_[8]{};   //纯字节缓冲区
     uint32_t rxTimeMs_ = 0;
     volatile bool rxPending_ = false;
     bool hasData_ = false;

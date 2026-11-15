@@ -11,6 +11,6 @@ void Motor::init() {
 }
 
 void Motor::ctrl(float _current) {
-    djimotor_.cmdCurrent(_current);
+    djimotor_.cmdCurrent(_current);//电机控制入口
 
 }
