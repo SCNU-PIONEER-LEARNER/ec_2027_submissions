@@ -20,15 +20,21 @@ public:
 
 private:
     // TODO:
-    static constexpr uint32_t TX_STDID_1_4 = 0;
+    static constexpr uint32_t TX_STDID_1_4 = 0x1FE;
     // TODO:
-    static constexpr uint32_t TX_STDID_5_7 = 0;
+    static constexpr uint32_t TX_STDID_5_7 = 0x2FE; 
 
     uint16_t currentToCode(float _current);
     uint32_t txStdID();
 
     uint32_t lastTxMs_ = 0;
     DJIRegInfo_s regInfo_ = {};
+
+    volatile uint16_t rxAngle_ = 0;      
+    volatile int16_t rxRpm_ = 0;         
+    volatile int16_t rxCurrent_ = 0;     
+    volatile uint8_t rxTemperature_ = 0; 
+    volatile uint32_t lastRxMs_ = 0;     // 最近一次收到反馈的时刻
 };
 
 } // namespace MOTOR
