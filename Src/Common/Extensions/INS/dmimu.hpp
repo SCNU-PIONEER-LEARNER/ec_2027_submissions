@@ -33,12 +33,15 @@ private:
     void update();
     void processFrame(const uint8_t *_frame, uint32_t _timeMs);
     bool transmit(uint8_t _rid, bool _write);
+    void requestEuler();
     float phrase(const uint8_t *_bytes, float _range, float _offset);
 
     static constexpr uint32_t OFFLINE_TIMEOUT_MS = 100;
+    static constexpr uint8_t TX_FREQ = 1;
     static constexpr uint32_t EULER_POLL_MS = 5;
     static constexpr uint32_t EULER_STUCK_MS = 5000; // 欧拉角重启判定时长
     static constexpr uint32_t RESTART_INTERVAL_MS = 5000;//重启间隔时长
+    static constexpr uint32_t TX_MIN_INTERVAL_US = 1000; // 1ms 发送最小间隔
 
     canHandle *hcan_ = nullptr;
     Data_s data_{};
@@ -51,6 +54,8 @@ private:
     uint32_t lastChangeMs_ = 0;
     uint32_t lastRequestMs_ = 0;
     uint32_t lastRestartMs_ = 0;
+    uint32_t lastTxUs_ = 0;
+    uint32_t lastTxMs_ = 0;
 };
 
 } // namespace INS
