@@ -2,11 +2,11 @@
 #include "Singleton.hpp"
 #include "sdkconfig.h"
 
-#if EXTENSION_ET08A
+
 #include "ET08A.hpp"
 #include "ServoPwm.hpp"
 #include <memory>
-#endif
+
 
 class App : public Singleton<App> {
     // pwm呼吸灯、转舵机，串口，电机pid测试，遥控器上层实现，考核框架

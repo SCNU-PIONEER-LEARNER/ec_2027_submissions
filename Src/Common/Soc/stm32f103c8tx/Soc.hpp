@@ -15,4 +15,7 @@
 /*usb*/
 #define SOC_USB_FS
 
+/*dma ram*/
+#define SOC_DMA_RAM
+
 #define SOC_CUSTOM_INIT() do { } while (0)
