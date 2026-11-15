@@ -72,11 +72,25 @@ HAL_StatusTypeDef canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
 {
     HAL_StatusTypeDef result = HAL_OK;
     CAN_FilterTypeDef canFilter{};
-    // TODO:
+    // TODO:补滤波器
+    canFilter.FilterBank = (_can->Instance == CAN1) ? 0U : 14U;
+    canFilter.FilterMode = CAN_FILTERMODE_IDMASK;
+    canFilter.FilterScale = CAN_FILTERSCALE_32BIT;
+    canFilter.FilterIdHigh = 0x0000;
+    canFilter.FilterIdLow = 0x0000;
+    canFilter.FilterMaskIdHigh = 0x0000; 
+    canFilter.FilterMaskIdLow = 0x0000;
+    canFilter.FilterFIFOAssignment = _fifo;
+    canFilter.FilterActivation = CAN_FILTER_ENABLE;
+    canFilter.SlaveStartFilterBank = 14U; // CAN2 的滤波器组从 14 开始
     result = HAL_CAN_ConfigFilter(_can, &canFilter);
-    if (_fifo == 0) {
+    
+    if (_fifo == 0) 
+    {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO0_MSG_PENDING);
-    } else if (_fifo == 1) {
+    } 
+    else if (_fifo == 1)
+    {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO1_MSG_PENDING);
     }
     return result;
