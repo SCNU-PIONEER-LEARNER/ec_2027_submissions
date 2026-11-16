@@ -11,6 +11,6 @@ void Motor::init() {
 }
 
 void Motor::ctrl(float _current) {
-    djimotor_.cmdCurrent(_current);
+    djimotor_.cmdCurrent(_current);//在这里将电流信息转给电机
 
 }

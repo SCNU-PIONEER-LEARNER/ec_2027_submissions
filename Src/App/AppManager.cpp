@@ -75,6 +75,6 @@ void AppManager::task()
         for (auto &task : this->tasks) {
             task();
         }
-        vTaskDelay(1);
+        vTaskDelay(1);//规定时间，每个任务循环的间隔时间，单位为tick
     }
 }

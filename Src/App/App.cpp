@@ -19,11 +19,15 @@ void App::init()
 #endif
 }
 
+
 void App::task()
 {
+    motor.ctrl(0.5f);
+    return;
+
 #if CAN_ASSESSMENT_BASIC
-    motor.ctrl(CAN_BASIC_CURRENT_MA / 1000.0f);
-#else
+    motor.ctrl(CAN_BASIC_CURRENT_MA / 1000.0f);//决定电机的电流大小，单位为A
+#elif CAN_ASSESSMENT_ADVANCED
     constexpr float MAX_CURRENT = 1.0f;
     constexpr float MAX_CURRENT_STEP = 0.01f;
 
@@ -35,10 +39,15 @@ void App::task()
     }
     angle_ = imuInstance->getData();
     // TODO:
-    const float targetCurrent = std::clamp(0.0f, -MAX_CURRENT, MAX_CURRENT);
-    motorCurrent_ = std::clamp(targetCurrent, motorCurrent_ - MAX_CURRENT_STEP,
-                               motorCurrent_ + MAX_CURRENT_STEP);
-
-    motor.ctrl(motorCurrent_);
+    float targetCurrent = 0.0f;
+    if(angle_.yaw > 2.0f){
+        targetCurrent = -0.5f;
+} else if(angle_.yaw < -2.0f){
+    targetCurrent = 0.5f;
+}
+    motor.ctrl(targetCurrent);
+#else
+    motorCurrent_ = 0.0f;
+    motor.ctrl(0.0f);
 #endif
 }

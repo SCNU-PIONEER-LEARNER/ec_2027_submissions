@@ -15,8 +15,8 @@ struct Data_s {
 
 class Ins : public Singleton<Ins>, public Task<Ins, 256> {
 public:
-    static constexpr uint16_t MASTERID = 0x11;
-    static constexpr uint16_t IMUID = 0x01;
+    static constexpr uint16_t MASTERID = 0x11;//IMU的反馈ID（主机id）
+    static constexpr uint16_t IMUID = 0x01;//IMU接受的命令ID（imuid）
     static constexpr uint16_t RX_FREQ = 1000;
 
     bool init(canHandle *_hcan);

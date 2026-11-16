@@ -68,17 +68,61 @@ void Can::unregisterCallback(canHandle *_hcan, uint32_t _stdid)
 }
 
 #if defined(SOC_CAN)
+
+/**
+ * @brief 配置一个 CAN 硬件滤波器：接收全部 ID
+ * @param _can  CAN1 / CAN2 句柄
+ * @param _fifo 0 = FIFO0，1 = FIFO1（与 Can::init 的 RX_FIFO0/1 对应）
+ *
+ * F4 有 28 个过滤器组：
+ *   CAN1 用 bank 0~13，CAN2 用 bank 14~27（由 SlaveStartFilterBank 分界）
+ */
+static HAL_StatusTypeDef canFilterConfig(CAN_HandleTypeDef *_can, uint32_t _fifo)
+{
+    CAN_FilterTypeDef filter = {};//清除过滤器全部参数值
+
+    /* 1. 分界点：CAN2 从 bank 14 开始 */
+    filter.SlaveStartFilterBank = 14;
+
+    /* 2. CAN1 用 bank 0，CAN2 用 bank 14 */
+    if (_can->Instance == CAN1) {
+        filter.FilterBank = 0;
+    } else {
+        filter.FilterBank = 14;
+    }
+
+    /* 3. 32 位掩码模式；ID 和掩码全 0 → 不比较，全部接收 */
+    filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    filter.FilterIdHigh = 0x0000;
+    filter.FilterIdLow = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow = 0x0000;
+
+    /* 4. 由调用者决定进 FIFO0 还是 FIFO1 */
+    filter.FilterFIFOAssignment =
+        (_fifo == 0) ? CAN_FILTER_FIFO0 : CAN_FILTER_FIFO1;
+
+    /* 5. 激活这个过滤器组 */
+    filter.FilterActivation = CAN_FILTER_ENABLE;
+
+    return HAL_CAN_ConfigFilter(_can, &filter);//交给HAL
+}
+
+
 HAL_StatusTypeDef canFilterInit(CAN_HandleTypeDef *_can, uint32_t _fifo)
 {
-    HAL_StatusTypeDef result = HAL_OK;
-    CAN_FilterTypeDef canFilter{};
-    // TODO:
-    result = HAL_CAN_ConfigFilter(_can, &canFilter);
+    HAL_StatusTypeDef result = canFilterConfig(_can, _fifo);
+    if (result != HAL_OK) {
+        return result;
+    }
+
     if (_fifo == 0) {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO0_MSG_PENDING);
     } else if (_fifo == 1) {
         result = HAL_CAN_ActivateNotification(_can, CAN_IT_RX_FIFO1_MSG_PENDING);
     }
+
     return result;
 }
 
@@ -106,10 +150,10 @@ HAL_StatusTypeDef Can::transmitData(canHandle *_hcan, uint16_t _stdid, uint8_t *
 void Can::callbackFromISR(canHandle *_hcan, uint32_t _rxFifo)
 {
     uint8_t rxData[8];
-    canHeader rxHeader;
+    canHeader rxHeader;//拿走帧，释放fifo
     if (HAL_CAN_GetRxMessage(_hcan, _rxFifo, &rxHeader, rxData) != HAL_OK) {
         return;
-    }
+    }//检查IDE和RTR是否为标准帧和数据帧
     if (rxHeader.IDE != CAN_ID_STD || rxHeader.RTR != CAN_RTR_DATA) {
         return;
     }
