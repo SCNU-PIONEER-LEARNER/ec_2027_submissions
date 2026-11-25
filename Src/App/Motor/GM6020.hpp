@@ -7,8 +7,8 @@ class GM6020{
     static constexpr float ANG_MEASURE_MAX=8191.f;
     static constexpr float ANG_MEASURE_MIN=0.f;
 
-    static constexpr float CURR_MEASURE_MAX=16384.f;
-    static constexpr float CURR_MAX=3.f;
+    static constexpr float CURR_MEASURE_MAX=16384.f;// 量程：报文里的“格数”满量程
+    static constexpr float CURR_MAX=3.f; // 物理：满量程对应 3 安培
 
     static constexpr float VOLT_MEASURE_MAX=25000.f;
     static constexpr float VOLT_MAX=25.2f;

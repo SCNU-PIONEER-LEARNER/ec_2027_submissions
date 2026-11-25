@@ -29,6 +29,7 @@ public:
     void update();
     void motorCtrl(float _refang);
     void velCtrl();
+    void stopMotor();            //下档：输出 0，电机停转
     void sendCtrlData();         //唯一输出出口
     void resetPids();             //切环/使能时清 PID
     float parseRC(int16_t _ch);
@@ -47,8 +48,8 @@ private:
     ET08A *et08a;
     FILTER::LPFIIR3 *iirFilter;
     FILTER::LPF *torqFilter;
-    CtrlMode_e ctrlMode ;// = CtrlMode_e::SINGLE_VEL;//现在挂在哪一档
-    CtrlMode_e lastMode ;// = CtrlMode_e::SINGLE_VEL;//上一拍挂在哪一档
+    CtrlMode_e ctrlMode = CtrlMode_e::SINGLE_VEL;//现在挂在哪一档
+    CtrlMode_e lastMode = CtrlMode_e::SINGLE_VEL;//上一拍挂在哪一档
     bool rcEnable        = false;//现在不许转
     bool lastEnable      = false;//上一拍不许转
     
