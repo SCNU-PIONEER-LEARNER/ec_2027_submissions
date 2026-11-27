@@ -1,0 +1,61 @@
+include(${CMAKE_SOURCE_DIR}/tools/cmake/FindInclude.cmake)
+
+file(GLOB_RECURSE SOURCES CMAKE_CONFIGURE_DEPENDS "AppManager.cpp")
+
+# chassis type
+if(APP_USE_MECANUM)
+  set(CHASSIS_TYPE "Mecanum")
+elseif(APP_USE_OMNI)
+  set(CHASSIS_TYPE "Omni")
+elseif(APP_USE_BIPEDAL)
+  set(CHASSIS_TYPE "Bipedal")
+elseif(APP_USE_SWERVE)
+  set(CHASSIS_TYPE "Swerve")
+endif()
+
+if(APP_USE_CHASSIS)
+  file(GLOB_RECURSE CHASSIS_SOURCES CMAKE_CONFIGURE_DEPENDS
+    "RobotModules/Chassis/Actuators/${CHASSIS_TYPE}/*.cpp")
+  list(APPEND SOURCES ${CHASSIS_SOURCES})
+endif()
+
+
+
+# gimbal type
+if(APP_USE_STANDARD)
+  set(GIMBAL_TYPE "Standard")
+  set(GIMBAL_SOURCE_DIR "Standard")
+elseif(APP_USE_DUALSTAGE)
+  set(GIMBAL_TYPE "DualStage")
+  set(GIMBAL_SOURCE_DIR "DualStage")
+endif()
+
+if(APP_USE_GIMBAL)
+  file(GLOB_RECURSE GIMBAL_SOURCES CMAKE_CONFIGURE_DEPENDS
+    "RobotModules/Gimbal/Actuators/${GIMBAL_SOURCE_DIR}/*.cpp"
+    "RobotModules/Gimbal/Actuators/${GIMBAL_SOURCE_DIR}/*.hpp")
+  list(APPEND SOURCES ${GIMBAL_SOURCES})
+endif()
+
+
+
+
+
+# ui
+if(APP_USE_UI)
+  file(GLOB_RECURSE UI_SOURCES CMAKE_CONFIGURE_DEPENDS "UI/*.cpp")
+  list(APPEND SOURCES ${UI_SOURCES})
+endif()
+
+
+
+# daemons
+if(APP_USE_DAEMONS)
+  file(GLOB_RECURSE DAEMONS_SOURCES CMAKE_CONFIGURE_DEPENDS "Daemons/*.cpp")
+  list(APPEND SOURCES ${DAEMONS_SOURCES})
+endif()
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${SOURCES})
+
+find_include_dir(HEADERS ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${HEADERS})

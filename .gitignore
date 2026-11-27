@@ -1,0 +1,29 @@
+# build cache
+build/
+.deps/
+.cache/
+.config
+.config.old
+sdkconfig.h
+sdkconfig.cmake
+
+# Third-party
+ThirdParty/
+
+# IDE files
+.vscode/launch.json
+.vscode/settings.json
+*.code-workspace
+
+# Log files
+*/*.log
+
+# Python cache
+__pycache__/
+.config_editing
+
+# Harness
+.dsh/
+.claude/settings.local.json
+#temp ignore
+Src/App/RobotModules/Gimbal/Actuators/ThreeAxel/

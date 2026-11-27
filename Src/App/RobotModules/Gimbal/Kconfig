@@ -1,0 +1,28 @@
+menu "gimbal config"
+    depends on APP_USE_GIMBAL
+
+    choice
+
+        prompt "gimbal type"
+        default APP_USE_STANDARD
+
+        config APP_USE_STANDARD
+            bool "standard"
+        config APP_USE_DUALSTAGE
+            bool "DualStage"
+
+    endchoice
+
+    config GIMBAL_TYPE
+        string
+        default "Standard" if APP_USE_STANDARD
+        default "DualStage"  if APP_USE_DUALSTAGE
+        default "ThreeAxle" if APP_USE_THREEAXLE
+
+    config GIMBAL_FILE
+        string
+        default '"Standard.hpp"' if APP_USE_STANDARD
+        default '"DualStage.hpp"'  if APP_USE_DUALSTAGE
+        default '"ThreeAxel.hpp"' if APP_USE_THREEAXLE
+
+endmenu
